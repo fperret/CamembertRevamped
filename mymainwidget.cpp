@@ -3,7 +3,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m_selectedSlice(0)
+MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m_selectedSlice(0), m_series(0)
 {
     createChart();
 
@@ -17,16 +17,20 @@ void MyMainWidget::createChart()
     QChart *lp_chart = new QChart();
     lp_chart->setTitle("Test title");
 
-    QPieSeries *lp_pieSeries = new QPieSeries();
-    *lp_pieSeries << new Slice("Slice 1", 10);
-    *lp_pieSeries << new Slice("Slice 2", 20);
-    *lp_pieSeries << new Slice("Slice 3", 0);
-    lp_pieSeries->setLabelsVisible(true);
+    // Create the data holder for the chart
+    m_series = new QPieSeries();
+    *m_series << new Slice("Slice 1", 10, "toto");
+    *m_series << new Slice("Slice 2", 20, "tata");
+    m_series->setLabelsVisible(true);
+    m_series->setLabelsPosition(QPieSlice::LabelInsideNormal);
 
-    lp_chart->addSeries(lp_pieSeries);
 
-    connect(lp_pieSeries, &QPieSeries::clicked, this, &MyMainWidget::callbackSliceClicked);
-    connect(lp_pieSeries, &QPieSeries::doubleClicked, this, &MyMainWidget::callbackSliceDoubleClicked);
+    // Link the data to the chart
+    lp_chart->addSeries(m_series);
+
+    // Set events related to the Slices
+    connect(m_series, &QPieSeries::clicked, this, &MyMainWidget::callbackSliceClicked);
+    connect(m_series, &QPieSeries::doubleClicked, this, &MyMainWidget::callbackSliceDoubleClicked);
 
     // Chart view
     m_chartView = new QChartView(lp_chart);
@@ -41,6 +45,7 @@ void MyMainWidget::keyReleaseEvent(QKeyEvent *p_event)
         if (m_selectedSlice != 0 && m_selectedSlice->value() > 0)
         {
             m_selectedSlice->setValue(m_selectedSlice->value() - 1);
+            //m_selectedSlice->update();
         }
     }
 }
@@ -64,4 +69,28 @@ void MyMainWidget::callbackSliceClicked(QPieSlice *p_slice)
 void MyMainWidget::callbackSliceDoubleClicked(QPieSlice *p_slice)
 {
     p_slice->setValue(p_slice->value() + 1);
+    //dynamic_cast<Slice *>(p_slice)->update();
+}
+
+bool MyMainWidget::saveValues(const QPieSeries *p_series)
+{
+    if (p_series == 0)
+        return false;
+
+    QJsonObject l_jsonObject;
+    for (auto slice : p_series->slices())
+    {
+        l_jsonObject[slice->objectName()] = slice->value();
+    }
+    logJson(l_jsonObject);
+    return true;
+}
+
+void MyMainWidget::logJson(const QJsonObject &p_jsonObject)
+{
+    for (QJsonObject::const_iterator l_it = p_jsonObject.begin(); l_it != p_jsonObject.end(); ++l_it)
+    {
+        qDebug() << l_it.key() << " / " << l_it.value();
+    }
+    qDebug() << "---------------------------------";
 }

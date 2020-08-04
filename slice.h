@@ -5,17 +5,18 @@
 
 QT_CHARTS_USE_NAMESPACE
 
+class MyMainWidget;
+
 class Slice : public QPieSlice
 {
     Q_OBJECT
 
 public:
-    Slice(QString p_label, qint8 p_value);
+    Slice(const QString &p_label, const qint8 &p_value, const QString &p_name);
 
     void reset();
     void select();
-
-    qint8 m_test;
+    void update();
 
 public Q_SLOTS:
     void hoverCallback(bool p_state);

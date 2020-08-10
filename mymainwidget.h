@@ -32,11 +32,10 @@ public:
 public Q_SLOTS:
     void callbackSliceClicked(QPieSlice *p_slice);
     void callbackSliceDoubleClicked(QPieSlice *p_slice);
-    void sliceValueChanged();
 
 private:
     void createChart();
-    void createList();
+    void createInfoArea(QGridLayout *p_parentGridLayout);
 
     //QHBoxLayout *createSectionRow(const std::string &p_label, Slice *p_connectedSlice);
 

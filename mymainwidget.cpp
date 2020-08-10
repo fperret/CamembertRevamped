@@ -20,16 +20,8 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
     lp_baseLayout->addWidget(m_chartView, 0, 1);
     setLayout(lp_baseLayout);
 
-    createList();
-
     QGridLayout *l_parentGridLayout = new QGridLayout();
-
-    int l_row = 0;
-    for (auto sliceModel : m_sliceModels) {
-        l_parentGridLayout->addLayout(sliceModel->getRowContainer(), l_row, 0);
-        l_row++;
-    }
-
+    createInfoArea(l_parentGridLayout);
     lp_baseLayout->addLayout(l_parentGridLayout, 0, 0);
 
 }
@@ -42,33 +34,13 @@ MyMainWidget::~MyMainWidget()
     }
 }
 
-/*QHBoxLayout *MyMainWidget::createSectionRow(const std::string &p_label, Slice *p_connectedSlice)
+void MyMainWidget::createInfoArea(QGridLayout *p_parentGridLayout)
 {
-    QLabel *l_text = new QLabel(QString(p_label.c_str()));
-    l_text->setFrameStyle(QFrame::Box);
-    //l_parentGridLayout->addWidget(l_text, 0, 0);
-
-    QPushButton *l_minus = new MyPushButton("-", -1);
-    QPushButton *l_plus = new MyPushButton("+", 1);
-    connect(l_minus, &MyPushButton::clicked, p_connectedSlice, &Slice::callbackButtonClick);
-    connect(l_plus, &MyPushButton::clicked, p_connectedSlice, &Slice::callbackButtonClick);
-    connect(p_connectedSlice, &Slice::valueChanged, this, &MyMainWidget::sliceValueChanged);
-
-    QHBoxLayout *l_container = new QHBoxLayout();
-    l_container->addWidget(l_minus);
-    l_container->addWidget(l_text);
-    l_container->addWidget(l_plus);
-
-    return l_container;
-}*/
-
-void MyMainWidget::sliceValueChanged()
-{
-
-}
-
-void MyMainWidget::createList()
-{
+    int l_row = 0;
+    for (auto sliceModel : m_sliceModels) {
+        p_parentGridLayout->addLayout(sliceModel->getRowContainer(), l_row, 0);
+        l_row++;
+    }
 }
 
 void MyMainWidget::createChart()
@@ -87,7 +59,7 @@ void MyMainWidget::createChart()
             if (l_jsonObject.value(l_key).isDouble()) {
                 m_sliceModels.push_back(new SliceModel("", l_jsonObject.value(l_key).toDouble(), l_key));
 
-                *m_series << m_sliceModels.back()->getSlice();//*m_series << new Slice("", l_jsonObject.value(l_key).toDouble(), l_key);
+                *m_series << m_sliceModels.back()->getSlice();
             }
         }
     }

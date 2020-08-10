@@ -16,13 +16,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ChartCallbacks.cpp \
+    jsonUtility.cpp \
     main.cpp \
     mymainwidget.cpp \
-    slice.cpp
+    mypushbutton.cpp \
+    slice.cpp \
+    slicemodel.cpp
 
 HEADERS += \
+    Utility.h \
     mymainwidget.h \
-    slice.h
+    mypushbutton.h \
+    slice.h \
+    slicemodel.h
 
 FORMS += \
     mainwindow.ui

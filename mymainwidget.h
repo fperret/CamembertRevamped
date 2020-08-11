@@ -8,6 +8,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtCharts/QChartView>
 #include <QtCharts/QPieSeries>
+#include <QComboBox>
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -32,6 +33,8 @@ public:
 public Q_SLOTS:
     void callbackSliceClicked(QPieSlice *p_slice);
     void callbackSliceDoubleClicked(QPieSlice *p_slice);
+    void addArmorSlice();
+    void addWeaponSlice();
 
 private:
     void createChart();
@@ -43,6 +46,8 @@ private:
     QChartView *m_chartView;
     Slice       *m_selectedSlice;
     QPieSeries  *m_series;
+    QComboBox   *m_newWeaponSelection;
+    QComboBox   *m_newArmorSelection;
 
     QVector<SliceModel *> m_sliceModels;
 

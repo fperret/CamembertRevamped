@@ -4,9 +4,11 @@
 #include "mypushbutton.h"
 
 #include "slicemodel.h"
+#include "gear.h"
 
 #include <QLabel>
 #include <QPushButton>
+#include <tuple>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -16,14 +18,56 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
 {
     createChart();
 
-    QGridLayout *lp_baseLayout = new QGridLayout();
+    QGridLayout *lp_baseLayout = new QGridLayout(this);
     lp_baseLayout->addWidget(m_chartView, 0, 1);
     setLayout(lp_baseLayout);
 
+
+
     QGridLayout *l_parentGridLayout = new QGridLayout();
     createInfoArea(l_parentGridLayout);
-    lp_baseLayout->addLayout(l_parentGridLayout, 0, 0);
 
+
+    QPushButton *l_addArmorButton = new QPushButton("Add armor", this);
+    QPushButton *l_addWeaponButton = new QPushButton("Add weapon", this);
+    // Leak need parent ?
+    QVBoxLayout *l_armorAddBox = new QVBoxLayout();
+    QVBoxLayout *l_weaponAddBox = new QVBoxLayout();
+
+    m_newArmorSelection = new QComboBox(this);
+    m_newWeaponSelection = new QComboBox(this);
+
+    for (int l_rarityIt = 0; l_rarityIt != Gear::LAST_RARITY; l_rarityIt++) {
+
+        Gear::RARITY l_rarity = static_cast<Gear::RARITY>(l_rarityIt);
+        QString l_rarityStr = Gear::rarityToString(static_cast<Gear::RARITY>(l_rarityIt));
+
+        for (int l_armorIt = 0; l_armorIt != Gear::LAST_ARMOR; l_armorIt++) {
+            // There is probably a better way to do it
+            m_newArmorSelection->addItem(l_rarityStr + " " + Gear::armorTypeToString(static_cast<Gear::ARMOR_TYPE>(l_armorIt)),
+                                            QString::fromStdString(std::to_string(l_rarity))
+                                            + QString("/")
+                                            + QString::fromStdString(std::to_string(l_armorIt)));
+        }
+
+        for (int l_weaponIt = 0; l_weaponIt != Gear::LAST_WEAPON; l_weaponIt++) {
+            m_newWeaponSelection->addItem(l_rarityStr + " " + Gear::weaponTypeToString(static_cast<Gear::WEAPON_TYPE>(l_weaponIt)), l_weaponIt);
+        }
+    }
+
+    l_armorAddBox->addWidget(m_newArmorSelection);
+    l_armorAddBox->addWidget(l_addArmorButton);
+
+    l_weaponAddBox->addWidget(m_newWeaponSelection);
+    l_weaponAddBox->addWidget(l_addWeaponButton);
+
+    l_parentGridLayout->addLayout(l_armorAddBox, l_parentGridLayout->count() + 1, 0);
+    l_parentGridLayout->addLayout(l_weaponAddBox, l_parentGridLayout->count() + 1, 0);
+
+    connect(l_addArmorButton, &QPushButton::clicked, this, &MyMainWidget::addArmorSlice);
+    connect(l_addWeaponButton, &QPushButton::clicked, this, &MyMainWidget::addWeaponSlice);
+
+    lp_baseLayout->addLayout(l_parentGridLayout, 0, 0);
 }
 
 MyMainWidget::~MyMainWidget()
@@ -32,6 +76,18 @@ MyMainWidget::~MyMainWidget()
     {
         delete l_it;
     }
+}
+
+void MyMainWidget::addArmorSlice()
+{
+    // faire une division entre les valeurs pour retrouver chaque enum
+    qDebug() << m_newArmorSelection->currentIndex();
+    //qDebug() << m_newArmorSelection->currentText();
+}
+
+void MyMainWidget::addWeaponSlice()
+{
+
 }
 
 void MyMainWidget::createInfoArea(QGridLayout *p_parentGridLayout)
@@ -45,11 +101,12 @@ void MyMainWidget::createInfoArea(QGridLayout *p_parentGridLayout)
 
 void MyMainWidget::createChart()
 {
+    // Parent ?
     QChart *lp_chart = new QChart();
     lp_chart->setTitle("Test title");
 
     // Create the data holder for the chart
-    m_series = new QPieSeries();
+    m_series = new QPieSeries(this);
     m_series->setLabelsVisible(true);
     m_series->setLabelsPosition(QPieSlice::LabelInsideNormal);
 

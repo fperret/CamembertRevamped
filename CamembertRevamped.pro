@@ -1,8 +1,13 @@
 QT       += charts
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+
+#LIBS += -LC:\Progra~1\OpenSSL-Win64\lib -lubsec
+
+#INCLUDEPATH += C:\Progra~1\OpenSSL-Win64\include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -17,6 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     ChartCallbacks.cpp \
+    gear.cpp \
     jsonUtility.cpp \
     main.cpp \
     mymainwidget.cpp \
@@ -26,6 +32,7 @@ SOURCES += \
 
 HEADERS += \
     Utility.h \
+    gear.h \
     mymainwidget.h \
     mypushbutton.h \
     slice.h \

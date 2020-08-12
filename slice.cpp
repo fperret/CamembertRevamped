@@ -6,7 +6,7 @@ QT_CHARTS_USE_NAMESPACE
 
 Slice::Slice(const QString &p_label, const qint8 &p_value, const QString &p_name) : QPieSlice(p_label, p_value)
 {
-    connect(this, &Slice::hovered, this, &Slice::hoverCallback);
+    //connect(this, &Slice::hovered, this, &Slice::hoverCallback);
     setObjectName(p_name);
 }
 

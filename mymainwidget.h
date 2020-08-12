@@ -37,6 +37,7 @@ public Q_SLOTS:
     void callbackSliceDoubleClicked(QPieSlice *p_slice);
     void addArmorSlice();
     void addWeaponSlice();
+    void deleteSlice();
 
 private:
     void createChart();

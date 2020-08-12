@@ -60,11 +60,15 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
     l_weaponAddBox->addWidget(m_newWeaponSelection);
     l_weaponAddBox->addWidget(l_addWeaponButton);
 
-    l_parentGridLayout->addLayout(l_armorAddBox, l_parentGridLayout->count() + 1, 0);
-    l_parentGridLayout->addLayout(l_weaponAddBox, l_parentGridLayout->count() + 1, 0);
+    l_parentGridLayout->addLayout(l_armorAddBox, l_parentGridLayout->rowCount() + 1, 0);
+    l_parentGridLayout->addLayout(l_weaponAddBox, l_parentGridLayout->rowCount() + 1, 0);
 
     connect(l_addArmorButton, &QPushButton::clicked, this, &MyMainWidget::addArmorSlice);
     connect(l_addWeaponButton, &QPushButton::clicked, this, &MyMainWidget::addWeaponSlice);
+
+    QPushButton *l_removeSlice = new QPushButton("Remove selected slice");
+    connect(l_removeSlice, &QPushButton::clicked, this, &MyMainWidget::deleteSlice);
+    l_parentGridLayout->addWidget(l_removeSlice, l_parentGridLayout->rowCount() + 1, 0);
 
     lp_baseLayout->addLayout(l_parentGridLayout, 0, 0);
 }
@@ -167,7 +171,20 @@ bool MyMainWidget::saveValues(const QPieSeries *p_series)
     return saveJsonObject(l_jsonObject, k_saveFileName);
 }
 
-
+void MyMainWidget::deleteSlice()
+{
+    if (m_selectedSlice != 0) {
+        m_series->remove(m_selectedSlice);
+        for (auto it = m_sliceModels.begin(); it != m_sliceModels.end(); ++it) {
+            if ((*it)->getSlice() == m_selectedSlice) {
+                m_selectedSlice = 0;
+                delete *it;
+                m_sliceModels.erase(it);
+                break;
+            }
+        }
+    }
+}
 
 void MyMainWidget::keyReleaseEvent(QKeyEvent *p_event)
 {

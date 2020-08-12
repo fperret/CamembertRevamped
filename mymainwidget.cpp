@@ -4,7 +4,6 @@
 #include "mypushbutton.h"
 
 #include "slicemodel.h"
-#include "gear.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -23,10 +22,8 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
     setLayout(lp_baseLayout);
 
 
-
     QGridLayout *l_parentGridLayout = new QGridLayout();
     createInfoArea(l_parentGridLayout);
-
 
     QPushButton *l_addArmorButton = new QPushButton("Add armor", this);
     QPushButton *l_addWeaponButton = new QPushButton("Add weapon", this);
@@ -34,6 +31,7 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
     QVBoxLayout *l_armorAddBox = new QVBoxLayout();
     QVBoxLayout *l_weaponAddBox = new QVBoxLayout();
 
+    // /!\ The name in the drop down list are not made the same way as the one in the slices
     m_newArmorSelection = new QComboBox(this);
     m_newWeaponSelection = new QComboBox(this);
 
@@ -43,15 +41,16 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
         QString l_rarityStr = Gear::rarityToString(static_cast<Gear::RARITY>(l_rarityIt));
 
         for (int l_armorIt = 0; l_armorIt != Gear::LAST_ARMOR; l_armorIt++) {
-            // There is probably a better way to do it
-            m_newArmorSelection->addItem(l_rarityStr + " " + Gear::armorTypeToString(static_cast<Gear::ARMOR_TYPE>(l_armorIt)),
-                                            QString::fromStdString(std::to_string(l_rarity))
-                                            + QString("/")
-                                            + QString::fromStdString(std::to_string(l_armorIt)));
+            // Used only to get the name in the drop down list
+            Gear l_tmpArmor(static_cast<Gear::ARMOR_TYPE>(l_armorIt), Gear::NOT_WEAPON, l_rarity);
+
+            m_newArmorSelection->addItem(l_tmpArmor.getName());
         }
 
         for (int l_weaponIt = 0; l_weaponIt != Gear::LAST_WEAPON; l_weaponIt++) {
-            m_newWeaponSelection->addItem(l_rarityStr + " " + Gear::weaponTypeToString(static_cast<Gear::WEAPON_TYPE>(l_weaponIt)), l_weaponIt);
+            // Used only to get the name in the drop down list
+            Gear l_tmpWeapon(Gear::NOT_ARMOR, static_cast<Gear::WEAPON_TYPE>(l_weaponIt), l_rarity);
+            m_newWeaponSelection->addItem(l_tmpWeapon.getName());
         }
     }
 
@@ -80,14 +79,30 @@ MyMainWidget::~MyMainWidget()
 
 void MyMainWidget::addArmorSlice()
 {
-    // faire une division entre les valeurs pour retrouver chaque enum
-    qDebug() << m_newArmorSelection->currentIndex();
-    //qDebug() << m_newArmorSelection->currentText();
+    // Will not work if the order in which elements are added to the drop list is modified
+    int l_chosenIndex = m_newArmorSelection->currentIndex();
+    Gear::ARMOR_TYPE l_armorType = static_cast<Gear::ARMOR_TYPE>(l_chosenIndex % Gear::LAST_ARMOR);
+    Gear::RARITY l_rarity = static_cast<Gear::RARITY>(l_chosenIndex / Gear::LAST_ARMOR);
+    Gear l_newArmor(l_armorType, Gear::NOT_WEAPON, l_rarity);
+
+    m_sliceModels.push_back(new SliceModel("", 1, l_newArmor.getName(), m_series));
+
+    // For now we keep a track of that in case we want to use it in the future
+    //m_armors.push_back(l_newArmor);
 }
 
 void MyMainWidget::addWeaponSlice()
 {
+    // Will not work if the order in which elements are added to the drop list is modified
+    int l_chosenIndex = m_newArmorSelection->currentIndex();
+    Gear::WEAPON_TYPE l_weaponType = static_cast<Gear::WEAPON_TYPE>(l_chosenIndex % Gear::LAST_WEAPON);
+    Gear::RARITY l_rarity = static_cast<Gear::RARITY>(l_chosenIndex / Gear::LAST_WEAPON);
+    Gear l_newWeapon(Gear::NOT_ARMOR, l_weaponType, l_rarity);
 
+    m_sliceModels.push_back(new SliceModel("", 1, l_newWeapon.getName(), m_series));
+
+    // For now we keep a track of that in case we want to use it in the future
+    //m_weapons.push_back(l_newWeapon);
 }
 
 void MyMainWidget::createInfoArea(QGridLayout *p_parentGridLayout)
@@ -114,9 +129,8 @@ void MyMainWidget::createChart()
     if (loadJsonObjectFromFile(l_jsonObject, k_saveFileName)) {
         for (auto l_key : l_jsonObject.keys()) {
             if (l_jsonObject.value(l_key).isDouble()) {
-                m_sliceModels.push_back(new SliceModel("", l_jsonObject.value(l_key).toDouble(), l_key));
-
-                *m_series << m_sliceModels.back()->getSlice();
+                qDebug() << l_key << " : " << l_jsonObject.value(l_key);
+                m_sliceModels.push_back(new SliceModel("", l_jsonObject.value(l_key).toDouble(), l_key, m_series));
             }
         }
     }
@@ -127,14 +141,17 @@ void MyMainWidget::createChart()
     // Set events related to the Slices
     connect(m_series, &QPieSeries::clicked, this, &MyMainWidget::callbackSliceClicked);
     connect(m_series, &QPieSeries::doubleClicked, this, &MyMainWidget::callbackSliceDoubleClicked);
-
+    // TODO : find why m_series become empty when we close the application
+    connect(m_series, &QPieSeries::countChanged, this, [=]() { saveValues(m_series); });
     // Chart view
     m_chartView = new QChartView(lp_chart);
 }
 
 bool MyMainWidget::saveValues(const QPieSeries *p_series)
 {
-    if (p_series == 0)
+    // For some reason when we close the window, m_series become empty and QPieSeries::countChanged is emitted with so this callback is triggered
+    // If we do not check against empty series we lose all data
+    if (p_series == 0 || p_series->isEmpty())
         return false;
 
     // Serialize the data in a json object

@@ -5,9 +5,10 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-SliceModel::SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName) : m_value(p_value)
+SliceModel::SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName, QPieSeries *p_owner) : m_value(p_value)
 {
     m_slice = new Slice(p_sliceLabel, m_value, p_sliceName);
+    *p_owner << m_slice;
 
     createSectionRow();
 

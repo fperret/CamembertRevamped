@@ -12,7 +12,7 @@ class SliceModel : public QObject
     Q_OBJECT
 
 public:
-    SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName);
+    SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName, QPieSeries *p_owner);
 
     Slice *getSlice() const { return m_slice; }
     QHBoxLayout *getRowContainer() const { return m_rowContainer; }

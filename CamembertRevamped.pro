@@ -25,6 +25,7 @@ SOURCES += \
     gear.cpp \
     jsonUtility.cpp \
     main.cpp \
+    monitoredqvector.cpp \
     mymainwidget.cpp \
     mypushbutton.cpp \
     slice.cpp \
@@ -33,6 +34,7 @@ SOURCES += \
 HEADERS += \
     Utility.h \
     gear.h \
+    monitoredqvector.h \
     mymainwidget.h \
     mypushbutton.h \
     slice.h \

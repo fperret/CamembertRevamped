@@ -43,7 +43,12 @@ public:
 
     };
 
+    Gear();
     Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity);
+    Gear(const Gear &p_source);
+    Gear &operator=(const Gear &p_other);
+
+    QString getName() const;
 
     static QString armorTypeToString(ARMOR_TYPE p_armorType);
     static QString weaponTypeToString(WEAPON_TYPE p_weaponType);

@@ -1,8 +1,10 @@
 #ifndef MYMAINWIDGET_H
 #define MYMAINWIDGET_H
 
-//#include "slice.h"
+
 #include "slicemodel.h"
+#include "gear.h"
+#include "monitoredqvector.h"
 
 #include <QWidget>
 #include <QtWidgets/QFormLayout>
@@ -50,6 +52,10 @@ private:
     QComboBox   *m_newArmorSelection;
 
     QVector<SliceModel *> m_sliceModels;
+
+    // Maybe we will need to keep gears in memory in the future
+    //QVector<Gear>   m_weapons;
+    //MonitoredQVector    m_armors;
 
 
 signals:

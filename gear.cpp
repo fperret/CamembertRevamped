@@ -1,8 +1,30 @@
 #include "gear.h"
 
-Gear::Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity) : m_armorType(p_armorType), m_weaponType(p_weaponType), m_rarity(p_rarity)
+Gear::Gear() : m_armorType(NOT_ARMOR), m_weaponType(NOT_WEAPON), m_rarity(COMMON)
 {
 
+}
+
+Gear::Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity) : m_armorType(p_armorType), m_weaponType(p_weaponType), m_rarity(p_rarity)
+{
+    m_isArmor = p_armorType == NOT_ARMOR ? false : true;
+}
+
+Gear::Gear(const Gear &p_source)
+{
+    m_armorType = p_source.m_armorType;
+    m_weaponType = p_source.m_weaponType;
+    m_rarity = p_source.m_rarity;
+    m_isArmor = p_source.m_isArmor;
+}
+
+Gear &Gear::operator=(const Gear &p_other)
+{
+    m_armorType = p_other.m_armorType;
+    m_weaponType = p_other.m_weaponType;
+    m_rarity = p_other.m_rarity;
+    m_isArmor = p_other.m_isArmor;
+    return *this;
 }
 
 QString Gear::armorTypeToString(ARMOR_TYPE p_armorType)
@@ -102,4 +124,9 @@ QString Gear::rarityToString(RARITY p_rarity)
             return QString("");
             break;
     }
+}
+
+QString Gear::getName() const
+{
+    return rarityToString(m_rarity) + " " + (m_isArmor ? armorTypeToString(m_armorType) : weaponTypeToString(m_weaponType));
 }

@@ -5,7 +5,9 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-SliceModel::SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName, QPieSeries *p_owner) : m_value(p_value)
+SliceModel::SliceModel(QVBoxLayout *p_parentLayout, const QString &p_sliceLabel, const qint8 &p_value, const QString &p_sliceName, QPieSeries *p_owner) :
+    m_parentLayout(p_parentLayout),
+    m_value(p_value)
 {
     m_slice = new Slice(p_sliceLabel, m_value, p_sliceName);
     *p_owner << m_slice;
@@ -17,6 +19,13 @@ SliceModel::SliceModel(const QString &p_sliceLabel, const qint8 &p_value, const 
 
     // Call this once manually to initialize everything
     callbackValueChanged();
+}
+
+SliceModel::~SliceModel()
+{
+    if (m_parentLayout != 0) {
+        //m_parentLayout->removeItem()
+    }
 }
 
 void SliceModel::createSectionRow()
@@ -33,6 +42,10 @@ void SliceModel::createSectionRow()
     m_rowContainer->addWidget(l_minus);
     m_rowContainer->addWidget(m_infoLabel);
     m_rowContainer->addWidget(l_plus);
+
+    if (m_parentLayout != 0) {
+        m_parentLayout->addLayout(m_rowContainer);
+    }
 }
 
 void SliceModel::callbackValueChanged()

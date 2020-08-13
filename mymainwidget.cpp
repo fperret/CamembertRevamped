@@ -15,15 +15,16 @@ static const std::string k_saveFileName = "../CamembertSave.json";
 
 MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m_selectedSlice(0), m_series(0)
 {
+    m_infoGridLayout = new QGridLayout();
+    m_sliceInfoLayout = new QVBoxLayout();
+
+    m_infoGridLayout->addLayout(m_sliceInfoLayout, 0, 0);
+
     createChart();
 
     QGridLayout *lp_baseLayout = new QGridLayout(this);
     lp_baseLayout->addWidget(m_chartView, 0, 1);
     setLayout(lp_baseLayout);
-
-
-    QGridLayout *l_parentGridLayout = new QGridLayout();
-    createInfoArea(l_parentGridLayout);
 
     QPushButton *l_addArmorButton = new QPushButton("Add armor", this);
     QPushButton *l_addWeaponButton = new QPushButton("Add weapon", this);
@@ -44,13 +45,18 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
             // Used only to get the name in the drop down list
             Gear l_tmpArmor(static_cast<Gear::ARMOR_TYPE>(l_armorIt), Gear::NOT_WEAPON, l_rarity);
 
-            m_newArmorSelection->addItem(l_tmpArmor.getName());
+            if (!isNameInSeries(l_tmpArmor.getName())) {
+                m_newArmorSelection->addItem(l_tmpArmor.getName());
+            }
         }
 
         for (int l_weaponIt = 0; l_weaponIt != Gear::LAST_WEAPON; l_weaponIt++) {
             // Used only to get the name in the drop down list
             Gear l_tmpWeapon(Gear::NOT_ARMOR, static_cast<Gear::WEAPON_TYPE>(l_weaponIt), l_rarity);
-            m_newWeaponSelection->addItem(l_tmpWeapon.getName());
+
+            if (!isNameInSeries(l_tmpWeapon.getName())) {
+                m_newWeaponSelection->addItem(l_tmpWeapon.getName());
+            }
         }
     }
 
@@ -60,17 +66,30 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
     l_weaponAddBox->addWidget(m_newWeaponSelection);
     l_weaponAddBox->addWidget(l_addWeaponButton);
 
-    l_parentGridLayout->addLayout(l_armorAddBox, l_parentGridLayout->rowCount() + 1, 0);
-    l_parentGridLayout->addLayout(l_weaponAddBox, l_parentGridLayout->rowCount() + 1, 0);
+    QPushButton *l_removeSlice = new QPushButton("Remove selected slice");
+
+    QVBoxLayout *l_seriesInfoLayout = new QVBoxLayout();
+    l_seriesInfoLayout->addLayout(l_armorAddBox);
+    l_seriesInfoLayout->addLayout(l_weaponAddBox);
+    l_seriesInfoLayout->addWidget(l_removeSlice);
+
+    m_infoGridLayout->addLayout(l_seriesInfoLayout, 1, 0);
+
+    //m_infoGridLayout->addLayout(l_armorAddBox, m_infoGridLayout->rowCount() + 1, 0);
+    //m_infoGridLayout->addLayout(l_weaponAddBox, m_infoGridLayout->rowCount() + 1, 0);
 
     connect(l_addArmorButton, &QPushButton::clicked, this, &MyMainWidget::addArmorSlice);
     connect(l_addWeaponButton, &QPushButton::clicked, this, &MyMainWidget::addWeaponSlice);
-
-    QPushButton *l_removeSlice = new QPushButton("Remove selected slice");
     connect(l_removeSlice, &QPushButton::clicked, this, &MyMainWidget::deleteSlice);
-    l_parentGridLayout->addWidget(l_removeSlice, l_parentGridLayout->rowCount() + 1, 0);
 
-    lp_baseLayout->addLayout(l_parentGridLayout, 0, 0);
+//    m_infoGridLayout->addWidget(l_removeSlice, m_infoGridLayout->rowCount() + 1, 0);
+
+    lp_baseLayout->addLayout(m_infoGridLayout, 0, 0);
+}
+
+bool MyMainWidget::isNameInSeries(const QString &p_nameToFind)
+{
+    return (m_series->findChild<Slice *>(p_nameToFind) != nullptr);
 }
 
 MyMainWidget::~MyMainWidget()
@@ -83,39 +102,14 @@ MyMainWidget::~MyMainWidget()
 
 void MyMainWidget::addArmorSlice()
 {
-    // Will not work if the order in which elements are added to the drop list is modified
-    int l_chosenIndex = m_newArmorSelection->currentIndex();
-    Gear::ARMOR_TYPE l_armorType = static_cast<Gear::ARMOR_TYPE>(l_chosenIndex % Gear::LAST_ARMOR);
-    Gear::RARITY l_rarity = static_cast<Gear::RARITY>(l_chosenIndex / Gear::LAST_ARMOR);
-    Gear l_newArmor(l_armorType, Gear::NOT_WEAPON, l_rarity);
-
-    m_sliceModels.push_back(new SliceModel("", 1, l_newArmor.getName(), m_series));
-
-    // For now we keep a track of that in case we want to use it in the future
-    //m_armors.push_back(l_newArmor);
+    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "", 1, m_newArmorSelection->currentText(), m_series));
+    m_newArmorSelection->removeItem(m_newArmorSelection->currentIndex());
 }
 
 void MyMainWidget::addWeaponSlice()
 {
-    // Will not work if the order in which elements are added to the drop list is modified
-    int l_chosenIndex = m_newArmorSelection->currentIndex();
-    Gear::WEAPON_TYPE l_weaponType = static_cast<Gear::WEAPON_TYPE>(l_chosenIndex % Gear::LAST_WEAPON);
-    Gear::RARITY l_rarity = static_cast<Gear::RARITY>(l_chosenIndex / Gear::LAST_WEAPON);
-    Gear l_newWeapon(Gear::NOT_ARMOR, l_weaponType, l_rarity);
-
-    m_sliceModels.push_back(new SliceModel("", 1, l_newWeapon.getName(), m_series));
-
-    // For now we keep a track of that in case we want to use it in the future
-    //m_weapons.push_back(l_newWeapon);
-}
-
-void MyMainWidget::createInfoArea(QGridLayout *p_parentGridLayout)
-{
-    int l_row = 0;
-    for (auto sliceModel : m_sliceModels) {
-        p_parentGridLayout->addLayout(sliceModel->getRowContainer(), l_row, 0);
-        l_row++;
-    }
+    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "", 1, m_newWeaponSelection->currentText(), m_series));
+    m_newWeaponSelection->removeItem(m_newWeaponSelection->currentIndex());
 }
 
 void MyMainWidget::createChart()
@@ -134,7 +128,7 @@ void MyMainWidget::createChart()
         for (auto l_key : l_jsonObject.keys()) {
             if (l_jsonObject.value(l_key).isDouble()) {
                 qDebug() << l_key << " : " << l_jsonObject.value(l_key);
-                m_sliceModels.push_back(new SliceModel("", l_jsonObject.value(l_key).toDouble(), l_key, m_series));
+                m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "toto", l_jsonObject.value(l_key).toDouble(), l_key, m_series));
             }
         }
     }

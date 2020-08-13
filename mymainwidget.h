@@ -30,6 +30,8 @@ public:
     void keyReleaseEvent(QKeyEvent *p_event);
 
     // Custom methods
+    bool isNameInSeries(const QString &p_nameToFind);
+
     static bool saveValues(const QPieSeries *p_series);
 
 public Q_SLOTS:
@@ -41,9 +43,6 @@ public Q_SLOTS:
 
 private:
     void createChart();
-    void createInfoArea(QGridLayout *p_parentGridLayout);
-
-    //QHBoxLayout *createSectionRow(const std::string &p_label, Slice *p_connectedSlice);
 
 
     QChartView *m_chartView;
@@ -51,6 +50,9 @@ private:
     QPieSeries  *m_series;
     QComboBox   *m_newWeaponSelection;
     QComboBox   *m_newArmorSelection;
+
+    QGridLayout *m_infoGridLayout;
+    QVBoxLayout *m_sliceInfoLayout;
 
     QVector<SliceModel *> m_sliceModels;
 

@@ -50,8 +50,6 @@ void SliceModel::createSectionRow()
 
 void SliceModel::callbackValueChanged()
 {
-    qDebug() << "old value : " << m_value << " / new value : " << m_slice->value();
-
     m_value = m_slice->value();
 
     m_slice->setLabel(m_slice->objectName() + " : " + QString::number(m_value));

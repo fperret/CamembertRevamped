@@ -42,10 +42,10 @@ public Q_SLOTS:
     void deleteSlice();
 
 private:
-    void createChart();
+    void createChartForKey(const QString &p_key);
 
-
-    QChartView *m_chartView;
+    QChart      *m_chart;
+    QChartView  *m_chartView;
     Slice       *m_selectedSlice;
     QPieSeries  *m_series;
     QComboBox   *m_newWeaponSelection;

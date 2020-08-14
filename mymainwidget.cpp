@@ -20,7 +20,20 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
 
     m_infoGridLayout->addLayout(m_sliceInfoLayout, 0, 0);
 
-    createChart();
+    m_chart = new QChart();
+
+    m_series = new QPieSeries();
+    // Data holder for the chart
+    m_series->setLabelsVisible(true);
+    m_series->setLabelsPosition(QPieSlice::LabelInsideNormal);
+    m_chart->addSeries(m_series);
+
+    m_chartView = new QChartView(m_chart);
+
+    //createChart();
+    createChartForKey("");
+    createChartForKey("");
+    //qDebug() << "after";
 
     QGridLayout *lp_baseLayout = new QGridLayout(this);
     lp_baseLayout->addWidget(m_chartView, 0, 1);
@@ -75,14 +88,9 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent), m_chartView(0), m
 
     m_infoGridLayout->addLayout(l_seriesInfoLayout, 1, 0);
 
-    //m_infoGridLayout->addLayout(l_armorAddBox, m_infoGridLayout->rowCount() + 1, 0);
-    //m_infoGridLayout->addLayout(l_weaponAddBox, m_infoGridLayout->rowCount() + 1, 0);
-
     connect(l_addArmorButton, &QPushButton::clicked, this, &MyMainWidget::addArmorSlice);
     connect(l_addWeaponButton, &QPushButton::clicked, this, &MyMainWidget::addWeaponSlice);
     connect(l_removeSlice, &QPushButton::clicked, this, &MyMainWidget::deleteSlice);
-
-//    m_infoGridLayout->addWidget(l_removeSlice, m_infoGridLayout->rowCount() + 1, 0);
 
     lp_baseLayout->addLayout(m_infoGridLayout, 0, 0);
 }
@@ -112,41 +120,33 @@ void MyMainWidget::addWeaponSlice()
     m_newWeaponSelection->removeItem(m_newWeaponSelection->currentIndex());
 }
 
-void MyMainWidget::createChart()
+void MyMainWidget::createChartForKey(const QString &p_key)
 {
-    // Parent ?
-    QChart *lp_chart = new QChart();
-    lp_chart->setTitle("Test title");
+    m_series->clear();
 
-    // Create the data holder for the chart
-    m_series = new QPieSeries(this);
-    m_series->setLabelsVisible(true);
-    m_series->setLabelsPosition(QPieSlice::LabelInsideNormal);
+    m_chart->setTitle(p_key);
 
     QJsonObject l_jsonObject;
     if (loadJsonObjectFromFile(l_jsonObject, k_saveFileName)) {
         for (auto l_key : l_jsonObject.keys()) {
             if (l_jsonObject.value(l_key).isDouble()) {
-                qDebug() << l_key << " : " << l_jsonObject.value(l_key);
+                //qDebug() << l_key << " : " << l_jsonObject.value(l_key);
                 m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "toto", l_jsonObject.value(l_key).toDouble(), l_key, m_series));
             }
         }
     }
-
-    // Link the data to the chart
-    lp_chart->addSeries(m_series);
 
     // Set events related to the Slices
     connect(m_series, &QPieSeries::clicked, this, &MyMainWidget::callbackSliceClicked);
     connect(m_series, &QPieSeries::doubleClicked, this, &MyMainWidget::callbackSliceDoubleClicked);
     // TODO : find why m_series become empty when we close the application
     connect(m_series, &QPieSeries::countChanged, this, [=]() { saveValues(m_series); });
-    // Chart view
-    m_chartView = new QChartView(lp_chart);
 }
 
 bool MyMainWidget::saveValues(const QPieSeries *p_series)
 {
+    qDebug() << "Save on key : " << p_series->chart()->title();
+
     // For some reason when we close the window, m_series become empty and QPieSeries::countChanged is emitted with so this callback is triggered
     // If we do not check against empty series we lose all data
     if (p_series == 0 || p_series->isEmpty())
@@ -159,7 +159,7 @@ bool MyMainWidget::saveValues(const QPieSeries *p_series)
         l_jsonObject[slice->objectName()] = slice->value();
     }
 
-    logJson(l_jsonObject);
+    //logJson(l_jsonObject);
 
     // Save the json in a file
     return saveJsonObject(l_jsonObject, k_saveFileName);

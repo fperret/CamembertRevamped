@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QPushButton>
 
 #include <map>
 
@@ -40,9 +41,16 @@ public Q_SLOTS:
     void addArmorSlice();
     void addWeaponSlice();
     void deleteSlice();
+    void loadNewChart(const QString &p_title);
+    void deleteChartAction();
 
 private:
+
     void createChartForKey(const QString &p_key);
+
+    void createChartSelectionList(QGridLayout *p_parentLayout);
+
+    void createItemsForGearAddLists();
 
     QChart      *m_chart;
     QChartView  *m_chartView;
@@ -50,15 +58,14 @@ private:
     QPieSeries  *m_series;
     QComboBox   *m_newWeaponSelection;
     QComboBox   *m_newArmorSelection;
+    QComboBox   *m_chartSelection;
+    QPushButton *m_deleteChartButton;
+
 
     QGridLayout *m_infoGridLayout;
     QVBoxLayout *m_sliceInfoLayout;
 
     QVector<SliceModel *> m_sliceModels;
-
-    // Maybe we will need to keep gears in memory in the future
-    //QVector<Gear>   m_weapons;
-    //MonitoredQVector    m_armors;
 
 
 signals:

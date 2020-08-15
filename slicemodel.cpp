@@ -23,9 +23,10 @@ SliceModel::SliceModel(QVBoxLayout *p_parentLayout, const QString &p_sliceLabel,
 
 SliceModel::~SliceModel()
 {
-    if (m_parentLayout != 0) {
-        //m_parentLayout->removeItem()
+    while (auto l_item = m_rowContainer->takeAt(0)) {
+        delete l_item->widget();
     }
+    delete m_rowContainer;
 }
 
 void SliceModel::createSectionRow()

@@ -26,5 +26,7 @@ void Slice::hoverCallback(bool p_isHovered)
 void Slice::callbackButtonClick()
 {
     MyPushButton *l_senderButton = qobject_cast<MyPushButton *>(sender());
-    setValue(value() + l_senderButton->getValue());
+    if (value() + l_senderButton->getValue() > 0) {
+        setValue(value() + l_senderButton->getValue());
+    }
 }

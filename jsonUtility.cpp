@@ -2,6 +2,7 @@
 
 void logJson(const QJsonObject &p_jsonObject)
 {
+    qDebug() << "=================================";
     for (QJsonObject::const_iterator l_it = p_jsonObject.begin(); l_it != p_jsonObject.end(); ++l_it)
     {
         qDebug() << l_it.key() << " / " << l_it.value();

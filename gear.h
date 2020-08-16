@@ -10,6 +10,16 @@ class Gear : QObject
 
 public:
 
+    enum BODY_PART {
+        NOT_BODY = -1,
+        CHEST = 0,
+        HEAD,
+        ARMS,
+        LEGS,
+        SHOULDERS,
+        LAST_BODY
+    };
+
     enum ARMOR_TYPE {
         NOT_ARMOR = -1,
         LIGHT = 0,
@@ -44,7 +54,7 @@ public:
     };
 
     Gear();
-    Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity);
+    Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity, BODY_PART p_bodyPart);
     Gear(const Gear &p_source);
     Gear &operator=(const Gear &p_other);
 
@@ -53,12 +63,14 @@ public:
     static QString armorTypeToString(ARMOR_TYPE p_armorType);
     static QString weaponTypeToString(WEAPON_TYPE p_weaponType);
     static QString rarityToString(RARITY p_rarity);
+    static QString bodyPartToString(BODY_PART p_bodyPart);
 
 private:
 
     ARMOR_TYPE  m_armorType;
     WEAPON_TYPE m_weaponType;
     RARITY      m_rarity;
+    BODY_PART   m_bodyPart;
 
     bool m_isArmor;
 

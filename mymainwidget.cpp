@@ -196,17 +196,22 @@ void MyMainWidget::createItemsForGearAddLists()
         QString l_rarityStr = Gear::rarityToString(static_cast<Gear::RARITY>(l_rarityIt));
 
         for (int l_armorIt = 0; l_armorIt != Gear::LAST_ARMOR; l_armorIt++) {
-            // Used only to get the name in the drop down list
-            Gear l_tmpArmor(static_cast<Gear::ARMOR_TYPE>(l_armorIt), Gear::NOT_WEAPON, l_rarity);
 
-            if (!isNameInSeries(l_tmpArmor.getName())) {
-                m_newArmorSelection->addItem(l_tmpArmor.getName());
+            Gear::ARMOR_TYPE l_armorType = static_cast<Gear::ARMOR_TYPE>(l_armorIt);
+            for (int l_bodyPartIt = 0; l_bodyPartIt != Gear::LAST_BODY; l_bodyPartIt++) {
+
+                // Used only to get the name in the drop down list
+                Gear l_tmpArmor(l_armorType, Gear::NOT_WEAPON, l_rarity, static_cast<Gear::BODY_PART>(l_bodyPartIt));
+
+                if (!isNameInSeries(l_tmpArmor.getName())) {
+                    m_newArmorSelection->addItem(l_tmpArmor.getName());
+                }
             }
         }
 
         for (int l_weaponIt = 0; l_weaponIt != Gear::LAST_WEAPON; l_weaponIt++) {
             // Used only to get the name in the drop down list
-            Gear l_tmpWeapon(Gear::NOT_ARMOR, static_cast<Gear::WEAPON_TYPE>(l_weaponIt), l_rarity);
+            Gear l_tmpWeapon(Gear::NOT_ARMOR, static_cast<Gear::WEAPON_TYPE>(l_weaponIt), l_rarity, Gear::NOT_BODY);
 
             if (!isNameInSeries(l_tmpWeapon.getName())) {
                 m_newWeaponSelection->addItem(l_tmpWeapon.getName());
@@ -310,9 +315,9 @@ void MyMainWidget::deleteSlice()
 void MyMainWidget::keyReleaseEvent(QKeyEvent *p_event)
 {
     // When we press 'u' while a slice is selected we decrement the value by one down to 0
-    if (p_event->key() == Qt::Key_U) {
+    /*if (p_event->key() == Qt::Key_U) {
         if (m_selectedSlice != 0 && m_selectedSlice->value() > 0) {
             m_selectedSlice->setValue(m_selectedSlice->value() - 1);
         }
-    }
+    }*/
 }

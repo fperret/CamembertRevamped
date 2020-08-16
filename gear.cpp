@@ -1,11 +1,11 @@
 #include "gear.h"
 
-Gear::Gear() : m_armorType(NOT_ARMOR), m_weaponType(NOT_WEAPON), m_rarity(COMMON)
+Gear::Gear() : m_armorType(NOT_ARMOR), m_weaponType(NOT_WEAPON), m_rarity(COMMON), m_bodyPart(NOT_BODY)
 {
 
 }
 
-Gear::Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity) : m_armorType(p_armorType), m_weaponType(p_weaponType), m_rarity(p_rarity)
+Gear::Gear(ARMOR_TYPE p_armorType, WEAPON_TYPE p_weaponType, RARITY p_rarity, BODY_PART p_bodyPart) : m_armorType(p_armorType), m_weaponType(p_weaponType), m_rarity(p_rarity), m_bodyPart(p_bodyPart)
 {
     m_isArmor = p_armorType == NOT_ARMOR ? false : true;
 }
@@ -16,6 +16,7 @@ Gear::Gear(const Gear &p_source)
     m_weaponType = p_source.m_weaponType;
     m_rarity = p_source.m_rarity;
     m_isArmor = p_source.m_isArmor;
+    m_bodyPart = p_source.m_bodyPart;
 }
 
 Gear &Gear::operator=(const Gear &p_other)
@@ -24,6 +25,7 @@ Gear &Gear::operator=(const Gear &p_other)
     m_weaponType = p_other.m_weaponType;
     m_rarity = p_other.m_rarity;
     m_isArmor = p_other.m_isArmor;
+    m_bodyPart = p_other.m_bodyPart;
     return *this;
 }
 
@@ -126,7 +128,37 @@ QString Gear::rarityToString(RARITY p_rarity)
     }
 }
 
+QString Gear::bodyPartToString(BODY_PART p_bodyPart)
+{
+    switch (p_bodyPart) {
+        case CHEST:
+            return QString("Chest");
+            break;
+
+        case HEAD:
+            return QString("Head");
+            break;
+
+        case ARMS:
+            return QString("Arms");
+            break;
+
+        case LEGS:
+            return QString("Legs");
+            break;
+
+        case SHOULDERS:
+            return QString("Shoulders");
+            break;
+
+
+        default:
+            return QString("");
+            break;
+    }
+}
+
 QString Gear::getName() const
 {
-    return rarityToString(m_rarity) + " " + (m_isArmor ? armorTypeToString(m_armorType) : weaponTypeToString(m_weaponType));
+    return rarityToString(m_rarity) + " " + (m_isArmor ? (armorTypeToString(m_armorType) + " " + bodyPartToString(m_bodyPart)) : weaponTypeToString(m_weaponType));
 }

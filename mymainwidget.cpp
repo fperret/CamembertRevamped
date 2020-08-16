@@ -23,6 +23,8 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent),
     m_series(0),
     m_newWeaponSelection(0),
     m_newArmorSelection(0),
+    m_chartSelection(0),
+    m_deleteChartButton(0),
     m_infoGridLayout(0),
     m_sliceInfoLayout(0)
 {
@@ -32,6 +34,7 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent),
     m_infoGridLayout->addLayout(m_sliceInfoLayout, 0, 0);
 
     m_chart = new QChart();
+    m_chart->setAnimationOptions(QChart::AllAnimations);
 
     m_series = new QPieSeries();
     // Data holder for the chart
@@ -43,7 +46,6 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent),
 
     QGridLayout *lp_baseLayout = new QGridLayout(this);
     createChartSelectionList(lp_baseLayout);
-
 
     lp_baseLayout->addWidget(m_chartView, 1, 1);
     setLayout(lp_baseLayout);
@@ -78,6 +80,7 @@ MyMainWidget::MyMainWidget(QWidget *parent) : QWidget(parent),
     connect(l_addWeaponButton, &QPushButton::clicked, this, &MyMainWidget::addWeaponSlice);
     connect(l_removeSlice, &QPushButton::clicked, this, &MyMainWidget::deleteSlice);
 
+    m_infoGridLayout->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
     lp_baseLayout->addLayout(m_infoGridLayout, 1, 0);
 }
 
@@ -131,7 +134,7 @@ void MyMainWidget::createChartSelectionList(QGridLayout *p_parentLayout)
     l_chartSelectionArea->addWidget(l_createChart);
     l_chartSelectionArea->addWidget(m_deleteChartButton);
 
-    p_parentLayout->addLayout(l_chartSelectionArea, 0, 0);
+    p_parentLayout->addLayout(l_chartSelectionArea, 0, 0, 1, 2);
 
     connect(m_chartSelection, &QComboBox::currentTextChanged, this, &MyMainWidget::loadNewChart);
 }
@@ -214,13 +217,13 @@ void MyMainWidget::createItemsForGearAddLists()
 
 void MyMainWidget::addArmorSlice()
 {
-    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "", 1, m_newArmorSelection->currentText(), m_series));
+    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, m_newArmorSelection->currentText(), 1, m_newArmorSelection->currentText(), m_series));
     m_newArmorSelection->removeItem(m_newArmorSelection->currentIndex());
 }
 
 void MyMainWidget::addWeaponSlice()
 {
-    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "", 1, m_newWeaponSelection->currentText(), m_series));
+    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, m_newWeaponSelection->currentText(), 1, m_newWeaponSelection->currentText(), m_series));
     m_newWeaponSelection->removeItem(m_newWeaponSelection->currentIndex());
 }
 
@@ -237,7 +240,7 @@ void MyMainWidget::createChartForKey(const QString &p_key)
             for (auto l_leafKey : l_keyEntry.value().toObject().keys()) {
                 QJsonValue l_leafValue = l_keyEntry.value().toObject().value(l_leafKey);
                   if (l_leafValue.isDouble()) {
-                    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, "toto", l_leafValue.toDouble(), l_leafKey, m_series));
+                    m_sliceModels.push_back(new SliceModel(m_sliceInfoLayout, l_leafKey, l_leafValue.toDouble(), l_leafKey, m_series));
                 }
             }
         }

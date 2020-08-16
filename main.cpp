@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     MyMainWidget l_mainWidget;
 
     l_window.setCentralWidget(&l_mainWidget);
-    l_window.resize(900, 900);
+    l_window.resize(2400, 1300);
     l_window.show();
     return l_app.exec();
 }

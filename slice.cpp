@@ -8,6 +8,13 @@ Slice::Slice(const QString &p_label, const qint8 &p_value, const QString &p_name
 {
     connect(this, &Slice::hovered, this, &Slice::hoverCallback);
     setObjectName(p_name);
+    setLabelVisible(true);
+    setLabelPosition(LabelPosition::LabelOutside);
+
+    QFont l_labelFont = labelFont();
+    l_labelFont.setWeight(11);
+    l_labelFont.setBold(true);
+    setLabelFont(l_labelFont);
 }
 
 void Slice::hoverCallback(bool p_isHovered)

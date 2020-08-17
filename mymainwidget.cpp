@@ -173,6 +173,8 @@ void MyMainWidget::loadNewChart(const QString &p_title)
     }
     m_sliceModels.clear();
 
+    m_selectedSlice = 0;
+
     m_deleteChartButton->setDisabled(false);
     // Create everything for the new entry (should change name TODO)
     createChartForKey(p_title);
